@@ -109,7 +109,45 @@ form button {
 }
 
 .display-note button {
+  margin-right: 2px;
   padding: 6px;
   float: right;
   background-color: rgba(255, 45, 45, 0.822);
+}
+
+/*--------------------------*/
+
+.comment-form {
+  display: flex;
+}
+
+
+.cma, .cmt, .cma {
+  display: inline-block;
+  margin-bottom: 10px;
+  height: 10px;
+
+}
+
+.cma {
+  width: 20%;
+  
+}
+
+.cmt {
+  width: 40%
+}
+
+.cms {
+  width: 10%;
+  font-size: 10px;
+  padding: 1px 0;
+}
+
+.comments {
+  display: block;
+  width: 100%;
+  font-size: 12px;
+  text-align: end;
+  margin-bottom: 0;
 }

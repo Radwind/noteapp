@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
 import './App.css';
 import firebase from './firebase';
+import Note from './Note';
+
 
 class App extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       name: '',
       content: '',
-      notes: []
+      file: '',
+      notes: [],
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -19,22 +22,24 @@ class App extends Component {
       [e.target.name]: e.target.value
     });
   }
-
+  
   handleSubmit(e) {
     e.preventDefault();
     const notesRef = firebase.database().ref('notes');
     const note = {
       name: this.state.name,
-      content: this.state.content
+      content: this.state.content,
+      //file: this.state.file,
     }
     notesRef.push(note);
+    this.setState({
+      name: '',
+      content: '',
+      //file: ''
+    })
   }
 
-  removeNote(noteId) {
-    const noteRef = firebase.database().ref(`/notes/${noteId}`);
-    noteRef.remove();
-  }
-
+  
 
   componentDidMount() {
     const notesRef = firebase.database().ref('notes');
@@ -45,13 +50,19 @@ class App extends Component {
         newState.push({
           id: note,
           name: notes[note].name,
-          content: notes[note].content
+          content: notes[note].content,
+          file: notes[note].file,
+          //comments: notes[note].comments
+          
         });
       }
+
       this.setState({
         notes: newState
       });
+
     });
+
   }
 
   render() {
@@ -59,36 +70,24 @@ class App extends Component {
       <div className='app'>
 
         <header>
-            <div className='wrapper'>
-              <h1>Note App</h1>
-            </div>
+          <div className='wrapper'>
+            <h1>Note App</h1>
+          </div>
         </header>
 
         <div className='container'>
           <div className='add-note'>
-              <form onSubmit={this.handleSubmit}>
-                <input type="text" name="name" required placeholder="Enter note name" onChange={this.handleChange} value={this.state.name}/>
-                <textarea type="text" name="content" required placeholder="Enter note" onChange={this.handleChange} value={this.state.content}/>
-                <button className="note-btn">Add Note</button>
-              </form>
+            <form onSubmit={this.handleSubmit}>
+              <input type="text" name="name" required placeholder="Enter note name" onChange={this.handleChange} value={this.state.name} />
+              <textarea type="text" name="content" required placeholder="Enter note" onChange={this.handleChange} value={this.state.content} />
+              <input type="file" name="file" value={this.state.file} />
+              <button className="note-btn">Add Note</button>
+            </form>
           </div>
 
-          <div className='display-note'>
-            <div className='wrapper'>
-              <ul>
-                {this.state.notes.map((note) => {
-                  return (
-                    <li key={note.id}>
-                    <button onClick={() => this.removeNote(note.id)}>&times;</button>
-                    <h3>{note.name}</h3>
-                    <p>{note.content}</p>
-                    
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-          </div>
+          <Note 
+            notes={this.state.notes}
+          />
 
         </div>
 
