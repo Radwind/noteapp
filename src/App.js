@@ -89,7 +89,7 @@ class App extends Component {
 
   componentDidMount() {
     console.log(this.state.option)
-    if (!this.state.option === 'local-storage') {
+    if (this.state.option === 'firebase') {
       const notesRef = firebase.database().ref('notes');
       notesRef.on('value', (snapshot) => {
         let notes = snapshot.val();
@@ -108,21 +108,20 @@ class App extends Component {
         });
       });
     }
-    else {
-      
-      let newState = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        let key = localStorage.key(i);
-        if (key.substring(0, 4) === "note") {
-          let item = localStorage.getItem(key);
-          let noteItem = JSON.parse(item);
-          newState.push(noteItem);
-        }
-      }
-      this.setState({
-        notes: newState
-      });
-    }
+    // if (localStorage) {
+    //   let newState = [];
+    //   for (let i = 0; i < localStorage.length; i++) {
+    //     let key = localStorage.key(i);
+    //     if (key.substring(0, 4) === "note") {
+    //       let item = localStorage.getItem(key);
+    //       let noteItem = JSON.parse(item);
+    //       newState.push(noteItem);
+    //     }
+    //   }
+    //   this.setState({
+    //     notes: newState
+    //   });
+    // }
   }
 
   render() {
