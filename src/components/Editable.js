@@ -7,15 +7,14 @@ class Editable extends Component {
         this.state = { isEdit: false }
     }
 
-
-    editNote(noteId) {
+    editNote() {
         !this.state.isEdit ? this.setState({isEdit:true}) : this.setState({isEdit:false})
     }
 
     render() {
         return (
             <div>
-                <label className="editor">Edit: <input type='checkbox' onChange={() => this.editNote(this.props.id)}/></label>
+                <label className="editor">Edit: <input type='checkbox' onChange={() => this.editNote()}/></label>
                 {!this.state.isEdit ?  
                     <div>
                         <h3>{this.props.name}</h3><p>{this.props.content}</p>

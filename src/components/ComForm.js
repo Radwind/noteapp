@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import firebase from '../firebase';
 
-function newDate(){
+function newDate() {
     let date = new Date();
-    let newdate = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}-${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+    let newdate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}-${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
     return newdate;
-  }
+}
 
 class ComForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            text:'',
+            text: '',
             author: '',
             id: ''
         }
@@ -21,7 +21,7 @@ class ComForm extends Component {
 
     getId(noteId) {
         this.setState({
-            id:noteId
+            id: noteId
         })
     }
 
@@ -30,11 +30,10 @@ class ComForm extends Component {
             [e.target.name]: e.target.value
         });
     }
-       
+
     handleSubmit(e) {
         e.preventDefault();
-        
-        const comRef = firebase.database().ref('/notes/' + this.state.id +'/comments');
+        const comRef = firebase.database().ref('/notes/' + this.state.id + '/comments');
         const com = {
             author: this.state.author,
             text: this.state.text,
@@ -42,7 +41,7 @@ class ComForm extends Component {
         }
         comRef.push(com);
         this.setState({
-            id:'',
+            id: '',
             author: '',
             text: '',
         })
@@ -51,9 +50,9 @@ class ComForm extends Component {
     render() {
         return (
             <form className="comment-form" onSubmit={this.handleSubmit}>
-                    <input type="text" className="cma" required name="author" onChange={this.handleChange} value={this.state.author}/>
-                    <input type="text" className="cmt" required name="text" onChange={this.handleChange} value={this.state.text}/>
-                    <button className="cms" onClick={()=> this.getId(this.props.id)}>Click</button>
+                <input type="text" className="cma" required name="author" onChange={this.handleChange} value={this.state.author} />
+                <input type="text" className="cmt" required name="text" onChange={this.handleChange} value={this.state.text} />
+                <button className="cms" onClick={() => this.getId(this.props.id)}>Click</button>
             </form>
         )
     }

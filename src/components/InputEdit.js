@@ -19,7 +19,6 @@ class Input extends Component {
         });
     }
 
-
     handleSubmit(e) {
         e.preventDefault();
         const editRef = firebase.database().ref('/notes/' + this.props.id);
@@ -28,20 +27,17 @@ class Input extends Component {
             name: this.state.name
         }
         editRef.update(data)
-        //;
     }
 
     render() {
         return (
             <form onSubmit={this.handleSubmit}>
-                    <p className="edit-header"><input type="text"  name="name" onChange={this.handleChange} value={this.state.name}/></p>
-                    <p className="edit-block"><textarea type="text"  name="content" onChange={this.handleChange} value={this.state.content}/></p>
-                    <button>Save</button>
+                <p className="edit-header"><input type="text" name="name" onChange={this.handleChange} value={this.state.name} /></p>
+                <p className="edit-block"><textarea type="text" name="content" onChange={this.handleChange} value={this.state.content} /></p>
+                <button>Save</button>
             </form>
         )
     }
-
-
 }
 
 export default Input;

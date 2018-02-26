@@ -23,14 +23,14 @@ class App extends Component {
   }
 
   handleUploadStart = (filename) => {
-    this.setState({isUploading: true, fileSize:filename.size});
+    this.setState({ isUploading: true, fileSize: filename.size });
   }
 
   handleUploadSuccess = (filename) => {
-    this.setState({file: filename, isUploading: false});
+    this.setState({ file: filename, isUploading: false });
     firebase.storage().ref('files').child(filename).getDownloadURL().then((url) => {
-      if (this.state.fileSize < 5*1024*1024) {
-        this.setState({fileURL: url})
+      if (this.state.fileSize < 5 * 1024 * 1024) {
+        this.setState({ fileURL: url })
       }
     });
   };
@@ -40,25 +40,23 @@ class App extends Component {
       [e.target.name]: e.target.value
     });
   }
-  
+
   handleOptions(e) {
     this.setState({
       option: e.target.value
     })
   }
 
-
   handleSubmit(e) {
-    
-    if(!this.state.isUploading && this.state.fileSize < 5*1024*1024) {
-      if(this.state.option === 'firebase'){
-  
+    e.preventDefault();
+    if (!this.state.isUploading && this.state.fileSize < 5 * 1024 * 1024) {
+      if (this.state.option === 'firebase') {
         const note = {
           name: this.state.name,
           content: this.state.content,
           fileURL: this.state.fileURL,
           file: this.state.file
-        } 
+        }
         const notesRef = firebase.database().ref('notes');
         notesRef.push(note);
         this.setState({
@@ -80,10 +78,9 @@ class App extends Component {
       //   console.log(localStorage);
       // }
     }
-    if(this.state.fileSize > 5*1024*1024) {
+    if (this.state.fileSize > 5 * 1024 * 1024) {
       alert('too big file')
     }
-    e.preventDefault();
   }
 
   componentDidMount() {
@@ -111,41 +108,34 @@ class App extends Component {
   render() {
     return (
       <div className='app'>
-
         <header>
           <div className='wrapper'>
             <h1>Note App</h1>
           </div>
         </header>
-
         <div className='container'>
           <div className='add-note'>
             <form onSubmit={this.handleSubmit}>
               <input type="text" name="name" required placeholder="Enter note name" onChange={this.handleChange} value={this.state.name} />
               <textarea type="text" name="content" required placeholder="Enter note" onChange={this.handleChange} value={this.state.content} />
               <FileUploader
-                  name="file"
-                  filename={this.filename}
-                  storageRef={firebase.storage().ref('files')}
-                  onUploadStart={this.handleUploadStart}
-                  onUploadSuccess={this.handleUploadSuccess}
-
+                name="file"
+                filename={this.filename}
+                storageRef={firebase.storage().ref('files')}
+                onUploadStart={this.handleUploadStart}
+                onUploadSuccess={this.handleUploadSuccess}
               />
               <div className="options">
-                <input  onChange={this.handleOptions} type="radio" name="options" value="firebase" checked={this.state.option === 'firebase'}/>Firebase 
-                <input  onChange={this.handleOptions} name="options" type="radio" value="local-storage" checked={this.state.option === 'local-storage'} />Local Storage
+                <input onChange={this.handleOptions} type="radio" name="options" value="firebase" checked={this.state.option === 'firebase'} />Firebase
+                <input onChange={this.handleOptions} name="options" type="radio" value="local-storage" checked={this.state.option === 'local-storage'} />Local Storage
               </div>
               <button className="note-btn">Add Note</button>
             </form>
           </div>
-
-          <Note 
+          <Note
             notes={this.state.notes}
-            isEdit={this.state.isEdit}
           />
-
         </div>
-
       </div>
     );
   }
