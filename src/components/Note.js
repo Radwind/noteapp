@@ -55,6 +55,3 @@ class Note extends Component {
 }
 
 export default Note;
-
-
-//{!this.state.isEdit ?  : <NoteEdit content={this.state.content}/>}

@@ -16,14 +16,11 @@ class App extends Component {
       fileURL: '',
       isUploading: false,
       fileSize: null,
-      isEdit : false
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleOptions = this.handleOptions.bind(this);
   }
-
-//File options
 
   handleUploadStart = (filename) => {
     this.setState({isUploading: true, fileSize:filename.size});
@@ -32,10 +29,11 @@ class App extends Component {
   handleUploadSuccess = (filename) => {
     this.setState({file: filename, isUploading: false});
     firebase.storage().ref('files').child(filename).getDownloadURL().then((url) => {
-      this.setState({fileURL: url})
+      if (this.state.fileSize < 5*1024*1024) {
+        this.setState({fileURL: url})
+      }
     });
   };
-
 
   handleChange(e) {
     this.setState({
@@ -51,15 +49,16 @@ class App extends Component {
 
 
   handleSubmit(e) {
-    e.preventDefault();
+    
     if(!this.state.isUploading && this.state.fileSize < 5*1024*1024) {
       if(this.state.option === 'firebase'){
+  
         const note = {
           name: this.state.name,
           content: this.state.content,
           fileURL: this.state.fileURL,
           file: this.state.file
-        }
+        } 
         const notesRef = firebase.database().ref('notes');
         notesRef.push(note);
         this.setState({
@@ -68,28 +67,23 @@ class App extends Component {
           fileURL: '',
           file: ''
         })
-      } 
-      else {
-        const note = {
-          id: Date.now(),
-          name: this.state.name,
-          content: this.state.content,
-          fileURL: this.state.fileURL,
-          file: this.state.file
-        }
-        const str=JSON.stringify(note)
-        console.log(str)
-        this.setState({
-          name: '',
-          content: '',
-          fileURL: '',
-          file: ''
-        })
       }
+      // else {
+      //   const note = {
+      //       id: Date.now(),
+      //       name: this.state.name,
+      //       content: this.state.content,
+      //     }
+      //   let noteArr = [];
+      //   noteArr.push(note)
+      //   localStorage.setItem('notes', JSON.stringify(noteArr));
+      //   console.log(localStorage);
+      // }
     }
     if(this.state.fileSize > 5*1024*1024) {
       alert('too big file')
     }
+    e.preventDefault();
   }
 
   componentDidMount() {
@@ -106,7 +100,6 @@ class App extends Component {
           file: notes[note].file
         });
       }
-
       this.setState({
         notes: newState
       });
