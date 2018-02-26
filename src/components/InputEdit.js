@@ -30,15 +30,14 @@ class Input extends Component {
             editRef.update(data)
         }
         else {
-            const data = {
-                id: this.props.id,
-                name: this.state.name,
-                content: this.state.content
-            }
             for (let i = 0; i < localStorage.length; i++) {
                 let key = localStorage.key(i);
                 if (+key.slice(4, key.length) === this.props.id) {
-                    localStorage.setItem(key, JSON.stringify(data))
+                    //localStorage.setItem(key, JSON.stringify(data))
+                    let q = JSON.parse(localStorage.getItem(key));
+                    q.name = this.state.name;
+                    q.content = this.state.content;
+                    localStorage.setItem(key, JSON.stringify(q))
                 }
             }
         }

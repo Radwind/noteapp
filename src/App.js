@@ -48,10 +48,9 @@ class App extends Component {
   }
 
   handleSubmit(e) {
-    
+    e.preventDefault();
     if (!this.state.isUploading && this.state.fileSize < 5 * 1024 * 1024) {
       if (this.state.option === 'firebase') {
-        e.preventDefault();
         const note = {
           name: this.state.name,
           content: this.state.content,
@@ -89,7 +88,8 @@ class App extends Component {
   }
 
   componentDidMount() {
-    if (this.state.option === 'firebase') {
+    console.log(this.state.option)
+    if (!this.state.option === 'local-storage') {
       const notesRef = firebase.database().ref('notes');
       notesRef.on('value', (snapshot) => {
         let notes = snapshot.val();
@@ -107,8 +107,9 @@ class App extends Component {
           notes: newState
         });
       });
-    } 
+    }
     else {
+      
       let newState = [];
       for (let i = 0; i < localStorage.length; i++) {
         let key = localStorage.key(i);
