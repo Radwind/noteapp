@@ -43,16 +43,16 @@ class ComForm extends Component {
         comRef.push(com);
         this.setState({
             id:'',
-            author: '',
             text: '',
+            //author: '',
         })
     }
 
     render() {
         return (
             <form onSubmit={this.handleSubmit}>
-                    <input type="text" required name="author" onChange={this.handleChange} value={this.state.author}/>
-                    <input type="text" required name="text" onChange={this.handleChange} value={this.state.text}/>
+                    <input type="text" placeholder="Name" required name="author" onChange={this.handleChange} value={this.state.author}/>
+                    <input type="text" placeholder="Comment" required name="text" onChange={this.handleChange} value={this.state.text}/>
                     <button onClick={()=> this.getId(this.props.id)}>Click</button>
             </form>
         )
