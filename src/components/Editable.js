@@ -22,6 +22,7 @@ class Editable extends Component {
                     <InputEdit id={this.props.id}
                         name={this.props.name}
                         content={this.props.content}
+                        option={this.props.option}
                     />}
             </div> 
         );

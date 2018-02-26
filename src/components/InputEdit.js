@@ -20,13 +20,29 @@ class Input extends Component {
     }
 
     handleSubmit(e) {
-        e.preventDefault();
-        const editRef = firebase.database().ref('/notes/' + this.props.id);
-        const data = {
-            content: this.state.content,
-            name: this.state.name
+        if(this.props.option === 'firebase') {
+            e.preventDefault();
+            const editRef = firebase.database().ref('/notes/' + this.props.id);
+            const data = {
+                content: this.state.content,
+                name: this.state.name
+            }
+            editRef.update(data)
         }
-        editRef.update(data)
+        else {
+            const data = {
+                id: this.props.id,
+                name: this.state.name,
+                content: this.state.content
+            }
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (+key.slice(4, key.length) === this.props.id) {
+                    localStorage.setItem(key, JSON.stringify(data))
+                }
+            }
+        }
+
     }
 
     render() {

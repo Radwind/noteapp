@@ -7,8 +7,18 @@ import Editable from './Editable';
 class Note extends Component {
 
   removeNote(noteId) {
-    const noteRef = firebase.database().ref('/notes/' + noteId);
-    noteRef.remove();
+    if(this.props.option === 'firebase') {
+      const noteRef = firebase.database().ref('/notes/' + noteId);
+      noteRef.remove();
+    }
+    else {
+      for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        if (+key.slice(4, key.length) === noteId) {
+            localStorage.removeItem(key)
+        }
+      }
+    }
   }
 
   render() {
@@ -20,17 +30,18 @@ class Note extends Component {
               return (
                 <li key={note.id}>
                   <button onClick={() => this.removeNote(note.id)}>&times;</button>
-                  <Editable content={note.content} name={note.name} id={note.id}/>
+                  <Editable content={note.content} name={note.name} id={note.id} option={this.props.option}/>
                   <p><a href={note.fileURL}>{note.file}</a></p>
                   <div>
                     <ul>
                       <Comments
                         id={note.id}
+                        option={this.props.option}
                       />
                     </ul>
                   </div>
                   <div className="comment-form">
-                    <ComForm id={note.id} />
+                    <ComForm id={note.id} option={this.props.option} />
                   </div>
                 </li>
               )

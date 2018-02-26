@@ -48,9 +48,10 @@ class App extends Component {
   }
 
   handleSubmit(e) {
-    e.preventDefault();
+    
     if (!this.state.isUploading && this.state.fileSize < 5 * 1024 * 1024) {
       if (this.state.option === 'firebase') {
+        e.preventDefault();
         const note = {
           name: this.state.name,
           content: this.state.content,
@@ -66,17 +67,21 @@ class App extends Component {
           file: ''
         })
       }
-      // else {
-      //   const note = {
-      //       id: Date.now(),
-      //       name: this.state.name,
-      //       content: this.state.content,
-      //     }
-      //   let noteArr = [];
-      //   noteArr.push(note)
-      //   localStorage.setItem('notes', JSON.stringify(noteArr));
-      //   console.log(localStorage);
-      // }
+      else {
+        const note = {
+          id: Date.now(),
+          name: this.state.name,
+          content: this.state.content,
+          comments: []
+        }
+        let key = "note" + note.id;
+        let item = JSON.stringify(note);
+        localStorage.setItem(key, item);
+        this.setState({
+          name: '',
+          content: '',
+        })
+      }
     }
     if (this.state.fileSize > 5 * 1024 * 1024) {
       alert('too big file')
@@ -84,25 +89,39 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const notesRef = firebase.database().ref('notes');
-    notesRef.on('value', (snapshot) => {
-      let notes = snapshot.val();
-      let newState = [];
-      for (let note in notes) {
-        newState.push({
-          id: note,
-          name: notes[note].name,
-          content: notes[note].content,
-          fileURL: notes[note].fileURL,
-          file: notes[note].file
+    if (this.state.option === 'firebase') {
+      const notesRef = firebase.database().ref('notes');
+      notesRef.on('value', (snapshot) => {
+        let notes = snapshot.val();
+        let newState = [];
+        for (let note in notes) {
+          newState.push({
+            id: note,
+            name: notes[note].name,
+            content: notes[note].content,
+            fileURL: notes[note].fileURL,
+            file: notes[note].file
+          });
+        }
+        this.setState({
+          notes: newState
         });
+      });
+    } 
+    else {
+      let newState = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        if (key.substring(0, 4) === "note") {
+          let item = localStorage.getItem(key);
+          let noteItem = JSON.parse(item);
+          newState.push(noteItem);
+        }
       }
       this.setState({
         notes: newState
       });
-
-    });
-
+    }
   }
 
   render() {
@@ -118,13 +137,13 @@ class App extends Component {
             <form onSubmit={this.handleSubmit}>
               <input type="text" name="name" required placeholder="Enter note name" onChange={this.handleChange} value={this.state.name} />
               <textarea type="text" name="content" required placeholder="Enter note" onChange={this.handleChange} value={this.state.content} />
-              <FileUploader
+              {this.state.option === 'firebase' ? <FileUploader
                 name="file"
                 filename={this.filename}
                 storageRef={firebase.storage().ref('files')}
                 onUploadStart={this.handleUploadStart}
                 onUploadSuccess={this.handleUploadSuccess}
-              />
+              /> : <p></p>}
               <div className="options">
                 <input onChange={this.handleOptions} type="radio" name="options" value="firebase" checked={this.state.option === 'firebase'} />Firebase
                 <input onChange={this.handleOptions} name="options" type="radio" value="local-storage" checked={this.state.option === 'local-storage'} />Local Storage
@@ -134,6 +153,7 @@ class App extends Component {
           </div>
           <Note
             notes={this.state.notes}
+            option={this.state.option}
           />
         </div>
       </div>

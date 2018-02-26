@@ -12,18 +12,12 @@ class ComForm extends Component {
         super(props);
         this.state = {
             text: '',
-            author: '',
-            id: ''
+            author: ''
         }
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    getId(noteId) {
-        this.setState({
-            id: noteId
-        })
-    }
 
     handleChange(e) {
         this.setState({
@@ -32,19 +26,38 @@ class ComForm extends Component {
     }
 
     handleSubmit(e) {
-        e.preventDefault();
-        const comRef = firebase.database().ref('/notes/' + this.state.id + '/comments');
-        const com = {
-            author: this.state.author,
-            text: this.state.text,
-            date: newDate()
+        if(this.props.option === 'firebase') {
+            e.preventDefault();
+            const comRef = firebase.database().ref('/notes/' + this.props.id + '/comments');
+            const com = {
+                author: this.state.author,
+                text: this.state.text,
+                date: newDate()
+            }
+            comRef.push(com);
+            this.setState({
+                id: '',
+                author: '',
+                text: '',
+            })
         }
-        comRef.push(com);
-        this.setState({
-            id: '',
-            author: '',
-            text: '',
-        })
+        else {
+            let rand = Date.now();
+            const comment = {
+                id: this.props.id + 'com' + rand,
+                author: this.state.author,
+                text: this.state.text,
+                date: newDate()
+            }
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (+key.slice(4, key.length) === this.props.id) {
+                    let q = JSON.parse(localStorage.getItem(key));
+                    q.comments.push(comment);
+                    localStorage.setItem(key, JSON.stringify(q))
+                }
+            }
+        }
     }
 
     render() {
@@ -52,7 +65,7 @@ class ComForm extends Component {
             <form className="comment-form" onSubmit={this.handleSubmit}>
                 <input type="text" className="cma" required name="author" onChange={this.handleChange} value={this.state.author} />
                 <input type="text" className="cmt" required name="text" onChange={this.handleChange} value={this.state.text} />
-                <button className="cms" onClick={() => this.getId(this.props.id)}>Click</button>
+                <button className="cms">Click</button>
             </form>
         )
     }
