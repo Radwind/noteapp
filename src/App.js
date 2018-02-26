@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
+import FileUploader from 'react-firebase-file-uploader';
 import './App.css';
 import firebase from './firebase';
-import Note from './Note';
-
+import Note from './components/Note';
 
 class App extends Component {
   constructor(props) {
@@ -12,10 +12,30 @@ class App extends Component {
       content: '',
       file: '',
       notes: [],
+      option: 'firebase',
+      fileURL: '',
+      isUploading: false,
+      fileSize: null,
+      isEdit : false
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleOptions = this.handleOptions.bind(this);
   }
+
+//File options
+
+  handleUploadStart = (filename) => {
+    this.setState({isUploading: true, fileSize:filename.size});
+  }
+
+  handleUploadSuccess = (filename) => {
+    this.setState({file: filename, isUploading: false});
+    firebase.storage().ref('files').child(filename).getDownloadURL().then((url) => {
+      this.setState({fileURL: url})
+    });
+  };
+
 
   handleChange(e) {
     this.setState({
@@ -23,23 +43,54 @@ class App extends Component {
     });
   }
   
-  handleSubmit(e) {
-    e.preventDefault();
-    const notesRef = firebase.database().ref('notes');
-    const note = {
-      name: this.state.name,
-      content: this.state.content,
-      //file: this.state.file,
-    }
-    notesRef.push(note);
+  handleOptions(e) {
     this.setState({
-      name: '',
-      content: '',
-      //file: ''
+      option: e.target.value
     })
   }
 
-  
+
+  handleSubmit(e) {
+    e.preventDefault();
+    if(!this.state.isUploading && this.state.fileSize < 5*1024*1024) {
+      if(this.state.option === 'firebase'){
+        const note = {
+          name: this.state.name,
+          content: this.state.content,
+          fileURL: this.state.fileURL,
+          file: this.state.file
+        }
+        const notesRef = firebase.database().ref('notes');
+        notesRef.push(note);
+        this.setState({
+          name: '',
+          content: '',
+          fileURL: '',
+          file: ''
+        })
+      } 
+      else {
+        const note = {
+          id: Date.now(),
+          name: this.state.name,
+          content: this.state.content,
+          fileURL: this.state.fileURL,
+          file: this.state.file
+        }
+        const str=JSON.stringify(note)
+        console.log(str)
+        this.setState({
+          name: '',
+          content: '',
+          fileURL: '',
+          file: ''
+        })
+      }
+    }
+    if(this.state.fileSize > 5*1024*1024) {
+      alert('too big file')
+    }
+  }
 
   componentDidMount() {
     const notesRef = firebase.database().ref('notes');
@@ -51,9 +102,8 @@ class App extends Component {
           id: note,
           name: notes[note].name,
           content: notes[note].content,
-          file: notes[note].file,
-          //comments: notes[note].comments
-          
+          fileURL: notes[note].fileURL,
+          file: notes[note].file
         });
       }
 
@@ -80,13 +130,25 @@ class App extends Component {
             <form onSubmit={this.handleSubmit}>
               <input type="text" name="name" required placeholder="Enter note name" onChange={this.handleChange} value={this.state.name} />
               <textarea type="text" name="content" required placeholder="Enter note" onChange={this.handleChange} value={this.state.content} />
-              <input type="file" name="file" value={this.state.file} />
+              <FileUploader
+                  name="file"
+                  filename={this.filename}
+                  storageRef={firebase.storage().ref('files')}
+                  onUploadStart={this.handleUploadStart}
+                  onUploadSuccess={this.handleUploadSuccess}
+
+              />
+              <div className="options">
+                <input  onChange={this.handleOptions} type="radio" name="options" value="firebase" checked={this.state.option === 'firebase'}/>Firebase 
+                <input  onChange={this.handleOptions} name="options" type="radio" value="local-storage" checked={this.state.option === 'local-storage'} />Local Storage
+              </div>
               <button className="note-btn">Add Note</button>
             </form>
           </div>
 
           <Note 
             notes={this.state.notes}
+            isEdit={this.state.isEdit}
           />
 
         </div>
